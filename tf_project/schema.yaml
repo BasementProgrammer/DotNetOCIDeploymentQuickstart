@@ -1,0 +1,160 @@
+title: "Deploy an ASP.NET Core application to Oracle Linux instances"
+description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.stackDescription()}
+schemaVersion: 1.1.0
+version: "20241009"
+locale: "en"
+
+variableGroups:
+- title: ${Messages.solutionsHub.generalConfig()}
+  visible: false
+  variables:
+  - tenancy_ocid
+  - region
+  - compartment_ocid
+
+
+- title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variableGroups.advancedConfigTitle()}
+  visible: false  
+  variables:
+    - num_nodes
+    - instance_ocpus
+    - load_balancer_shape_details_maximum_bandwidth_in_mbps
+    - load_balancer_shape_details_minimum_bandwidth_in_mbps
+    - subnet_cidr
+    - instance_shape
+    - instance_name
+    - availability_domain
+    - userdata
+    - cloudinit_ps1
+    - cloudinit_config
+    - index_html
+    - image_os
+    - image_os_version
+    - is_winrm_configured_for_image
+    - is_winrm_configured_for_ssl
+
+
+outputGroups:
+- title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputGroups.deploymentDetailsTitle()}
+  outputs:
+    - instance_public_ip1
+    - instance_public_ip2
+    - username1
+    - username2
+    - lb_public_ip
+
+outputs:
+  instance_public_ip1:
+    type: link
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.instancePublicIp1Title()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.instancePublicIp1Description()}
+  instance_public_ip2:
+    type: link
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.instancePublicIp2Title()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.instancePublicIp2Description()}
+  username1:
+    type: link
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.username1Title()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.username1Description()}
+  username2:
+    type: link
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.username2Title()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.username2Description()}
+  lb_public_ip:
+    type: link
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.lbPublicIpTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.outputs.lbPublicIpDescription()}
+
+primaryOutputButton: lb_public_ip
+
+variables:
+  instance_password:
+    type: password
+    required: true
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instancePasswordTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instancePasswordDescription()}
+    pattern: "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\\\"\\\\|,.<>\\/?]).{12,32}$"
+    visible: true
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    title: ${Messages.solutionsHub.genericVariables.compartment.title()}
+    description: ${Messages.solutionsHub.genericVariables.compartment.description()}
+    required: true
+  load_balancer_shape_details_maximum_bandwidth_in_mbps:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.loadBalancerShapeDetailsMaximumBandwidthInMbpsTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.loadBalancerShapeDetailsMaximumBandwidthInMbpsDescription()}
+  load_balancer_shape_details_minimum_bandwidth_in_mbps:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.loadBalancerShapeDetailsMinimumBandwidthInMbpsTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.loadBalancerShapeDetailsMinimumBandwidthInMbpsDescription()}
+  instance_shape:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instanceShapeTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instanceShapeDescription()}
+  instance_name:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instanceNameTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.instanceNameDescription()}
+  availability_domain:
+    type: number
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.availabilityDomainTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.availabilityDomainDescription()}
+  userdata:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.userdataTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.userdataDescription()}
+  cloudinit_ps1:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.cloudinitPs1Title()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.cloudinitPs1Description()}
+  cloudinit_config:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.cloudinitConfigTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.cloudinitConfigDescription()}
+  index_html:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.indexHtmlTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.indexHtmlDescription()}
+  image_os:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.imageOsTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.imageOsDescription()}
+  image_os_version:
+    type: string
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.imageOsVersionTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.imageOsVersionDescription()}
+  is_winrm_configured_for_image:
+    type: boolean
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.isWinrmConfiguredForImageTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.isWinrmConfiguredForImageDescription()}
+  is_winrm_configured_for_ssl:
+    type: boolean
+    required: false
+    visible: false
+    title: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.isWinrmConfiguredForSslTitle()}
+    description: ${Messages.solutionsHub.solutions.aspnetQuickstarts.variables.isWinrmConfiguredForSslDescription()}
