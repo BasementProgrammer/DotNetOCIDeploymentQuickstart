@@ -1,93 +1,85 @@
-# Create a new compartment
-resource "oci_identity_compartment" "my_compartment" {
-  compartment_id = "ocid1.tenancy.oc1..aaaaaaaaqxhfhppmshnaq3qaqgyr53g3ndijh7tqtuwkh34rauywbk4svlyq" # Replace with the OCID of the tenancy
-  description    = "My Compartment"
-  name           = "aspnet-core-demo"
-}
+      terraform {
+        required_version = ">= 0.14.11"
+        required_providers {
+          oci = {
+            source = "oracle/oci"
+          }
+        }
+      }
 
-# Create a new VCN
-resource "oci_core_vcn" "my_vcn" {
-  cidr_block     = "10.0.0.0/16"
-  compartment_id = oci_identity_compartment.my_compartment.id
-  display_name   = "ASPNET Core VCN"
-}
+      data "oci_core_subnet" "this" {
+        subnet_id = var.subnet_ocid
+      }
 
-# Create a new subnet
-resource "oci_core_subnet" "my_subnet" {
-  cidr_block                 = "10.0.0.0/24"
-  compartment_id             = oci_identity_compartment.my_compartment.id
-  vcn_id                     = oci_core_vcn.my_vcn.id
-  display_name               = "My Subnet"
-  prohibit_public_ip_on_vnic = false
-}
+      data "oci_core_images" "this" {
+        #Required
+        compartment_id = "${var.compartment_ocid}"
+  
+        #Optional
+        shape = "VM.Standard.A1.Flex"
+        state = "AVAILABLE"
+        operating_system = "Oracle Linux"
 
-# Create a new route table
-resource "oci_core_route_table" "my_route_table" {
-  compartment_id = oci_identity_compartment.my_compartment.id
-  vcn_id         = oci_core_vcn.my_vcn.id
-  display_name   = "My Route Table"
-}
+      }
 
-# Associate the route table with the subnet
-resource "oci_core_route_table_attachment" "my_route_table_attachment" {
-  subnet_id      = oci_core_subnet.my_subnet.id
-  route_table_id = oci_core_route_table.my_route_table.id
-}
+      # add data source to list AD1 name in the tenancy. Should work for both single and multi Ad region 
+      data "oci_identity_availability_domain" "ad" {
+          compartment_id = "${var.tenancy_ocid}"
+          ad_number      = 1
+      }
+  
+      resource "oci_core_instance" "this" {
+        # availability_domain  = data.oci_core_subnet.this.availability_domain
+        availability_domain  = "${data.oci_core_subnet.this.availability_domain != null ? data.oci_core_subnet.this.availability_domain : data.oci_identity_availability_domain.ad.name}"
+        compartment_id       = var.compartment_ocid
+        display_name         = var.instance_display_name
+        ipxe_script          = var.ipxe_script
+        preserve_boot_volume = var.preserve_boot_volume
+        shape                = var.shape
+        
+        shape_config {
+            memory_in_gbs = "32"
+            ocpus = "2"
+        }
+        create_vnic_details {
+          #assign_public_ip       = var.assign_public_ip
+          assign_public_ip       = true
+          display_name           = var.vnic_name
+          hostname_label         = var.hostname_label
+          #private_ip             = var.private_ip
+          skip_source_dest_check = var.skip_source_dest_check
+          subnet_id              = var.subnet_ocid
+        }
 
-# Create a new security list
-resource "oci_core_security_list" "my_security_list" {
-  compartment_id = oci_identity_compartment.my_compartment.id
-  vcn_id         = oci_core_vcn.my_vcn.id
-  display_name   = "My Security List"
-  egress_security_rules {
-    destination = "0.0.0.0/0"
-    protocol    = "6"
-}
+        #ssh_authorized_keys = var.ssh_public_key
+        metadata = {
+          ssh_authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCboQCXc8GKbaazjznwIgOofSyax/yjLp83RYMvKyb4AZ6kujjKQmUg+TsYYNpVcUNPBBisbJ29oCBdmSsAeBWD0Hs/GpiaD5iu9lgv6UfFC5/OAbsIeeRLxn16Q0yanqBW/ZI4ghruUVRUWWDKNqOqPp1nyud3S56yFsGkxbpIndsyRi4o5l07RaG6QpjXoSl/ndO0feALr5WaOOJjlx/PbQTEmBUagL23q8sbdBbs60Ql6CiF8hlYr1Am65hmNETBMcY2NRcnd1ctRj/faOiELCFU7qf2h/iLQApUEC1q3FUe5mSdKmtDgux4nTXs8To9+7cEAKSiq7VpXBeBm0m9 tom_m_moor@7f80a06c282b"
+          user_data           = "${base64encode(file("./app_install.sh"))}"
+        }
 
-ingress_security_rules {
-    tcp_options {
-      max = "22"
-      min = "22"
-    }
-    protocol = "6"
-    source    = "0.0.0.0/0"
-}
+        source_details {
+          boot_volume_size_in_gbs = var.boot_volume_size_in_gbs
+          source_type = "image"
+          source_id   = data.oci_core_images.this.images[0].id
+        }
 
-ingress_security_rules {
-    tcp_options {
-      max = "80"
-      min = "80"
-    }
-    protocol = "6"
-    source    = "0.0.0.0/0"
-  }
-}
+        timeouts {
+          create = var.instance_timeout
+        }
+      }
 
-# Create a new instance
-resource "oci_core_instance" "my_instance" {
-  availability_domain = "WMYd:US-ASHBURN-AD-1"
-  compartment_id      = "ocid1.compartment.oc1..aaaaaaaayyogmrj3ji365uhokskoffcezkxtmrjvnli55fqyi7utehpqumfq"
-  shape               = "VM.Standard.E5.Flex"
-  display_name        = "My Oracle Linux Instance"
-  shape_config {
-    ocpus = 1
-    memory_in_gbs = 12
-  }
-  create_vnic_details {
-    #subnet_id         = oci_core_subnet.my_subnet.id
-    subnet_id = "ocid1.securitylist.oc1.iad.aaaaaaaap4do2ysyhybmx7bgc5mvgi4ccswiaiyugd6lrvzzen52etplyi7a"
-    assign_public_ip = true
-  }
-  source_details {
-    source_type = "image"
-    source_id   = "ocid1.image.oc1.iad.aaaaaaaaiopfwqfdynconqifpbev477nkprewaynhsixjjvj2wwc2trzlxnq" # Replace with the OCID of the Oracle Linux image
-  }
-  #metadata = {
-  #  ssh_authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDl4+rHyTNfOfT8qYRfssJnbUonHnZTzb1eZE8x2UmyzCgHbHGX/N2IFLCmyoJ1EtLo6nnAA108cKh1z3ccRwqhQCOQz60hPctED0yeg4gjYLG5O1ce5OJ3O9xHE8tl35wrkR2SG/vCSpwSU8dmp31ZwZjsZisUJsQjRBpfPh4sEwI2Wm3yxoVOsOOnSHQmRhrmC0j3zMpCjPt3y1s9IQE6rFJyXTtx0KrDGfd/mu7Ja0DqnVgm/2+aJ0fDLeK+ZvB1Q1P2WjzoET7gmNG4JX4DI+CV0Eqw8i3lnf62O//TP31tUMFz1t61fT929XfPB4vI8etKIptBcTAmbIIFAREjo3zT7uGY50I6d0X07GeIAg0dDqlGuqZns/tQyhlDR5bR/Z5jw/N9ECJqZcL0g6muZxemmhoguyAtAmjUtyX+zRvQMd0HmUYKBNwNi3v13JLo9/rfvXZcf/FyTsojsugdCmYISJPw9WKhgtRdVd2ZIX287juFoyJE5wLoAJAnSk8= tom moore@thomamoo-2MQ4200HR4"
-  #}
-}
+      resource "oci_core_volume" "this" {
+        availability_domain = oci_core_instance.this.availability_domain
+        compartment_id      = var.compartment_ocid
+        display_name        = "${oci_core_instance.this.display_name}_volume_0"
+        size_in_gbs         = var.block_storage_size_in_gbs
+      }
 
-# Output the instance details
-#output "instance_details" {
-#  value = oci_core_instance.my_instance
-#}
+      resource "oci_core_volume_attachment" "this" {
+        attachment_type = var.attachment_type
+        # compartment_id  = var.compartment_ocid
+        instance_id     = oci_core_instance.this.id
+        volume_id       = oci_core_volume.this.id
+        use_chap        = var.use_chap
+      }
+    

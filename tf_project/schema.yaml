@@ -1,0 +1,205 @@
+# Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+  title: "Create a Compute instance in Oracle Cloud Infrastructure"
+  stackDescription: ${Messages.solutionsHub.solutions.computeInstance.stackDescription()}
+  schemaVersion: 1.1.0
+  version: "20200301"
+  locale: "en"
+
+  variableGroups:
+  - title: ${Messages.solutionsHub.generalConfig()}
+    visible: false
+    variables:
+    - compartment_ocid
+    - tenancy_ocid
+    - region
+    
+  - title: ${Messages.solutionsHub.requiredConfig()}
+    visible: true  
+    variables:
+    - instance_display_name
+    - vcn_ocid
+    - subnet_ocid
+    - shape
+
+  - title: ${Messages.solutionsHub.optionalConfig()}
+    visible: true  
+    variables:
+    - block_storage_size_in_gbs
+    - ipxe_script
+    - preserve_boot_volume
+    - boot_volume_size_in_gbs
+    - assign_public_ip
+    - vnic_name
+    - hostname_label
+    - private_ip
+    - skip_source_dest_check
+    - ssh_public_key
+    - user_data
+    - instance_timeout
+    - attachment_type
+    - use_chap
+    - resource_platform
+
+  variables:
+    compartment_ocid:
+      type: oci:identity:compartment:id
+      # type: string
+      required: true
+      title: ${Messages.solutionsHub.genericVariables.compartment.title()}
+      description: ${Messages.solutionsHub.genericVariables.compartment.description()}
+
+    region:
+      type: oci:identity:region:name
+      required: true
+      title: ${Messages.solutionsHub.genericVariables.region.title()}
+      description: ${Messages.solutionsHub.genericVariables.region.description()}
+
+    instance_display_name:
+      type: string
+      required: true
+      default: "testCompute"
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.instance_display_name.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.instance_display_name.description()}
+
+    ipxe_script:
+      type: text
+      required: false
+      default: ""
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.ipxe_script.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.ipxe_script.description()}
+
+    preserve_boot_volume:
+      type: boolean
+      required: false
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.preserve_boot_volume.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.preserve_boot_volume.description()}
+      default: false
+
+    boot_volume_size_in_gbs:
+      type: number
+      required: false
+      minimum: 50
+      maximum: 32768
+      default: 50
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.boot_volume_size_in_gbs.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.boot_volume_size_in_gbs.description()}
+
+    shape:
+      type: oci:core:instanceshape:name
+      required: true
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.shape.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.shape.description()}
+      default: "VM.Standard.A1.Flex"
+      dependsOn:
+        compartmentId: compartment_ocid
+
+    assign_public_ip:
+      type: boolean
+      required: false
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.assign_public_ip.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.assign_public_ip.description()}
+      default: false
+
+    vnic_name:
+      type: string
+      required: false
+      default: myVNIC
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.vnic_name.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.vnic_name.description()}
+
+    hostname_label:
+      type: string
+      required: false
+      default: myHost
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.hostname_label.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.hostname_label.description()}
+
+    private_ip:
+      type: string
+      required: false
+      default: ""
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.private_ip.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.private_ip.description()}
+
+    skip_source_dest_check:
+      type: boolean
+      required: false
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.skip_source_dest_check.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.skip_source_dest_check.description()}
+      default: false
+
+    vcn_ocid:
+      type: oci:core:vcn:id
+      dependsOn:
+        compartmentId: compartment_ocid
+      required: true
+      default: ""
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.description()}
+
+    subnet_ocid:
+      type: oci:core:subnet:id
+      dependsOn:
+        compartmentId: compartment_ocid
+        vcnId: vcn_ocid
+      required: true
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.description()}
+
+    ssh_public_key:
+      type: oci:core:ssh:publickey
+      additionalProps:
+        allowMultiple: true
+      required: false
+      default: [""]
+      pattern: "((^(ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)(,((ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)*$"
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.ssh_public_key.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.ssh_public_key.description()}
+
+    user_data:
+      type: text
+      required: false
+      default: ""
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.user_data.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.user_data.description()}
+
+    instance_timeout:
+      type: string
+      required: false
+      default: "25m"
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.instance_timeout.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.instance_timeout.description()}
+
+    block_storage_size_in_gbs:
+      type: number
+      required: false
+      default: 50
+      minimum: 1
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.block_storage_size_in_gbs.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.block_storage_size_in_gbs.description()}
+
+    attachment_type:
+      type: enum
+      required: false
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.attachment_type.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.attachment_type.description()}
+      default: "iscsi"
+      enum:
+        - "iscsi"
+        - "paravirtualized"
+
+    use_chap:
+      type: boolean
+      required: false
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.use_chap.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.use_chap.description()}
+      default: true
+
+    resource_platform:
+      type: string
+      required: false
+      default: "linux"
+      title: ${Messages.solutionsHub.solutions.computeInstance.variables.resource_platform.title()}
+      description: ${Messages.solutionsHub.solutions.computeInstance.variables.resource_platform.description()}
