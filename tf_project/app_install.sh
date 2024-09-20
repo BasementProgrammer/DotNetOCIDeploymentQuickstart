@@ -44,9 +44,9 @@ echo 'export DOTNET_ROOT=/.dotnet' >> ~/.bashrc
 echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc
 
 # Install the OCL-CLI
-sudo apt yum install -y python3-oci-cli
+sudo apt install -y python3-oci-cli
 # Download the application from your bucket
-# oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
+oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
 unzip ./App.zip -d /var/www/App
 
 # Create Kestral service for the asp.net application
@@ -55,14 +55,14 @@ echo '
 Description=Example .NET Web API App running on Linux
 
 [Service]
-WorkingDirectory=/var/www/App
+WorkingDirectory=/var/www/App/
 ExecStart=/.dotnet/dotnet /var/www/App/ociTestASPNET.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
 KillSignal=SIGINT
 SyslogIdentifier=dotnet-example
-User=opc
+User=ubuntu
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_NOLOGO=true
 
@@ -73,11 +73,9 @@ systemctl enable aspnetTestApp.service
 systemctl start aspnetTestApp.service
 
 # Configure nginx to serve /var/www directory
-#bash -c 'cat > /etc/nginx/conf.d/default.conf <<EOF
-
 mkdir -p /etc/nginx/sites-available
 
-#bash -c 'cat > /etc/nginx/sites-available/aspnetTestApp.conf <<EOF
+echo '
 server {
     listen       80;
     server_name  _;
@@ -85,16 +83,16 @@ server {
         proxy_pass         http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade $http_upgrade;
-        proxy_set_header   Connection $connection_upgrade;
+        proxy_set_header   Connection keep-alive;
         proxy_set_header   Host $host;
         proxy_cache_bypass $http_upgrade;
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
 }
-EOF'
+EOF'   |  sudo tee /etc/nginx/sites-available/default
 
-ln -s /etc/nginx/sites-available/nginxdotnet /etc/nginx/sites-enabled/nginxdotnet
+# ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 systemctl restart nginx
 

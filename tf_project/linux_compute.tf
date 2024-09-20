@@ -18,7 +18,7 @@
         #Optional
         shape = "VM.Standard.A1.Flex"
         state = "AVAILABLE"
-        operating_system = "Ubuntu Linux"
+        operating_system = "Canonical Ubuntu"
       }
 
       # add data source to list AD1 name in the tenancy. Should work for both single and multi Ad region 
