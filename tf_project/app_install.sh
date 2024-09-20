@@ -4,6 +4,7 @@
 #
 
 # Install nginx
+apt-get update
 apt install -y epel-release
 apt install -y nginx
 apt install -y unzip
@@ -81,7 +82,7 @@ server {
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
 }
-EOF' | tee /etc/nginx/sites-available/default
+' | tee /etc/nginx/sites-available/default
 
 systemctl restart nginx
 
