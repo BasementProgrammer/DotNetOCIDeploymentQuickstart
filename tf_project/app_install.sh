@@ -4,12 +4,12 @@
 #
 
 # Install nginx
-yum install -y epel-release
-yum install -y nginx
+sudo apt install -y epel-release
+sudo apt install -y nginx
 
 # Create the /var/www directory if it doesn't exist
-mkdir -p /var/www
-mkdir -p /var/www/App
+sudo mkdir -p /var/www
+sudo mkdir -p /var/www/App
 
 # Create the Hello World HTML file
 echo '<!DOCTYPE html>
@@ -20,17 +20,17 @@ echo '<!DOCTYPE html>
 <body>
     <h1>Hello World!</h1>
 </body>
-</html>' |  tee /var/www/index.html
+</html>' |  sudo tee /var/www/index.html
 
-systemctl restart nginx
+sudo systemctl restart nginx
 
 # Open HTTP port 80 in the firewall
-systemctl stop firewalld
-firewall-offline-cmd --zone=public --add-service=http
-firewall-offline-cmd --zone=public --add-service=https
-firewall-offline-cmd --zone=public --add-port=5000/tcp 
+sudo systemctl stop firewalld
+sudo firewall-offline-cmd --zone=public --add-service=http
+sudo firewall-offline-cmd --zone=public --add-service=https
+sudo firewall-offline-cmd --zone=public --add-port=5000/tcp 
 # firewall-cmd --reload
-systemctl start firewalld
+sudo systemctl start firewalld
 
 #
 # Dot Net Section
@@ -38,15 +38,15 @@ systemctl start firewalld
 
 # Install the latest version of .NET on the instance
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-chmod +x ./dotnet-install.sh
-./dotnet-install.sh --version latest --install-dir /.dotnet
+sudo chmod +x ./dotnet-install.sh
+sudo ./dotnet-install.sh --version latest --install-dir /.dotnet
 echo 'export DOTNET_ROOT=/.dotnet' >> ~/.bashrc
 echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc
 
 # Install the OCL-CLI
-yum install -y python3-oci-cli
+sudo apt yum install -y python3-oci-cli
 # Download the application from your bucket
-oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
+# oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
 unzip ./App.zip -d /var/www/App
 
 # Create Kestral service for the asp.net application
@@ -67,7 +67,7 @@ Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_NOLOGO=true
 
 [Install]
-WantedBy=multi-user.target'  |  tee /etc/systemd/system/aspnetTestApp.service
+WantedBy=multi-user.target'  |  sudo tee /etc/systemd/system/aspnetTestApp.service
 
 systemctl enable aspnetTestApp.service
 systemctl start aspnetTestApp.service
