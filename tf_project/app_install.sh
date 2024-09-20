@@ -4,33 +4,24 @@
 #
 
 # Install nginx
-sudo apt install -y epel-release
-sudo apt install -y nginx
+apt install -y epel-release
+apt install -y nginx
+apt install -y unzip
+apt install -y firewalld
 
 # Create the /var/www directory if it doesn't exist
-sudo mkdir -p /var/www
-sudo mkdir -p /var/www/App
+mkdir -p /var/www
+mkdir -p /var/www/App
 
-# Create the Hello World HTML file
-echo '<!DOCTYPE html>
-<html>
-<head>
-    <title>Hello World</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-</body>
-</html>' |  sudo tee /var/www/index.html
-
-sudo systemctl restart nginx
+systemctl restart nginx
 
 # Open HTTP port 80 in the firewall
-sudo systemctl stop firewalld
-sudo firewall-offline-cmd --zone=public --add-service=http
-sudo firewall-offline-cmd --zone=public --add-service=https
-sudo firewall-offline-cmd --zone=public --add-port=5000/tcp 
+systemctl stop firewalld
+firewall-offline-cmd --zone=public --add-service=http
+firewall-offline-cmd --zone=public --add-service=https
+firewall-offline-cmd --zone=public --add-port=5000/tcp 
 # firewall-cmd --reload
-sudo systemctl start firewalld
+systemctl start firewalld
 
 #
 # Dot Net Section
@@ -44,7 +35,7 @@ echo 'export DOTNET_ROOT=/.dotnet' >> ~/.bashrc
 echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc
 
 # Install the OCL-CLI
-sudo apt install -y python3-oci-cli
+apt install -y python3-oci-cli
 # Download the application from your bucket
 oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
 unzip ./App.zip -d /var/www/App
@@ -67,7 +58,7 @@ Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_NOLOGO=true
 
 [Install]
-WantedBy=multi-user.target'  |  sudo tee /etc/systemd/system/aspnetTestApp.service
+WantedBy=multi-user.target' | tee /etc/systemd/system/aspnetTestApp.service
 
 systemctl enable aspnetTestApp.service
 systemctl start aspnetTestApp.service
@@ -90,9 +81,7 @@ server {
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
 }
-EOF'   |  sudo tee /etc/nginx/sites-available/default
-
-# ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+EOF' | tee /etc/nginx/sites-available/default
 
 systemctl restart nginx
 
