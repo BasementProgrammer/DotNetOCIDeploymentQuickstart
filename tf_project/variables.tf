@@ -16,7 +16,7 @@
       variable "hostname_label" {}
       variable "private_ip" {}
       variable "skip_source_dest_check" {}
-      variable "subnet_ocid" {}
+      //variable "subnet_ocid" {}
       variable "ssh_public_key" {}
       variable "user_data" {}
       variable "instance_timeout" {}

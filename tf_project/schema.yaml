@@ -134,7 +134,7 @@
       type: oci:core:vcn:id
       dependsOn:
         compartmentId: compartment_ocid
-      required: true
+      required: false
       default: ""
       title: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.title()}
       description: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.description()}
@@ -144,7 +144,7 @@
       dependsOn:
         compartmentId: compartment_ocid
         vcnId: vcn_ocid
-      required: true
+      required: false
       title: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.title()}
       description: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.description()}
 

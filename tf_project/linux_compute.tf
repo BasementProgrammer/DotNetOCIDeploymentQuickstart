@@ -7,9 +7,9 @@
         }
       }
 
-      data "oci_core_subnet" "this" {
-        subnet_id = var.subnet_ocid
-      }
+      #data "oci_core_subnet" "this" {
+      #  subnet_id = var.subnet_ocid
+      #}
 
       data "oci_core_images" "this" {
         #Required
@@ -29,7 +29,7 @@
   
       resource "oci_core_instance" "App_Instance_1" {
         # availability_domain  = data.oci_core_subnet.this.availability_domain
-        availability_domain  = "${data.oci_core_subnet.this.availability_domain != null ? data.oci_core_subnet.this.availability_domain : data.oci_identity_availability_domain.ad.name}"
+        availability_domain  = "${oci_core_subnet.subnet1.availability_domain != null ? oci_core_subnet.subnet1.availability_domain : data.oci_identity_availability_domain.ad.name}"
         compartment_id       = var.compartment_ocid
         display_name         = var.instance_display_name
         ipxe_script          = var.ipxe_script
@@ -45,12 +45,12 @@
           display_name           = var.vnic_name
           hostname_label         = "AppInstance1"
           skip_source_dest_check = var.skip_source_dest_check
-          subnet_id              = var.subnet_ocid
+          subnet_id              = oci_core_subnet.subnet1.id
         }
 
         #ssh_authorized_keys = var.ssh_public_key
         metadata = {
-          ssh_authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCboQCXc8GKbaazjznwIgOofSyax/yjLp83RYMvKyb4AZ6kujjKQmUg+TsYYNpVcUNPBBisbJ29oCBdmSsAeBWD0Hs/GpiaD5iu9lgv6UfFC5/OAbsIeeRLxn16Q0yanqBW/ZI4ghruUVRUWWDKNqOqPp1nyud3S56yFsGkxbpIndsyRi4o5l07RaG6QpjXoSl/ndO0feALr5WaOOJjlx/PbQTEmBUagL23q8sbdBbs60Ql6CiF8hlYr1Am65hmNETBMcY2NRcnd1ctRj/faOiELCFU7qf2h/iLQApUEC1q3FUe5mSdKmtDgux4nTXs8To9+7cEAKSiq7VpXBeBm0m9 tom_m_moor@7f80a06c282b"
+          ssh_authorized_keys = var.ssh_public_key
           user_data           = "${base64encode(file("./app_install.sh"))}"
         }
 
@@ -82,7 +82,7 @@
 
       resource "oci_core_instance" "App_Instance_2" {
         # availability_domain  = data.oci_core_subnet.this.availability_domain
-        availability_domain  = "${data.oci_core_subnet.this.availability_domain != null ? data.oci_core_subnet.this.availability_domain : data.oci_identity_availability_domain.ad.name}"
+        availability_domain  = "${oci_core_subnet.subnet1.availability_domain != null ? oci_core_subnet.subnet1.availability_domain : data.oci_identity_availability_domain.ad.name}"
         compartment_id       = var.compartment_ocid
         display_name         = var.instance_display_name
         ipxe_script          = var.ipxe_script
@@ -98,12 +98,11 @@
           display_name           = var.vnic_name
           hostname_label         = "AppInstance2"
           skip_source_dest_check = var.skip_source_dest_check
-          subnet_id              = var.subnet_ocid
+          subnet_id              = oci_core_subnet.subnet1.id
         }
 
-        #ssh_authorized_keys = var.ssh_public_key
         metadata = {
-          ssh_authorized_keys = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCboQCXc8GKbaazjznwIgOofSyax/yjLp83RYMvKyb4AZ6kujjKQmUg+TsYYNpVcUNPBBisbJ29oCBdmSsAeBWD0Hs/GpiaD5iu9lgv6UfFC5/OAbsIeeRLxn16Q0yanqBW/ZI4ghruUVRUWWDKNqOqPp1nyud3S56yFsGkxbpIndsyRi4o5l07RaG6QpjXoSl/ndO0feALr5WaOOJjlx/PbQTEmBUagL23q8sbdBbs60Ql6CiF8hlYr1Am65hmNETBMcY2NRcnd1ctRj/faOiELCFU7qf2h/iLQApUEC1q3FUe5mSdKmtDgux4nTXs8To9+7cEAKSiq7VpXBeBm0m9 tom_m_moor@7f80a06c282b"
+          ssh_authorized_keys = var.ssh_public_key
           user_data           = "${base64encode(file("./app_install.sh"))}"
         }
 
