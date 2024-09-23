@@ -11,8 +11,8 @@
         description = "Public IPs of App Instance 2. "
         value       = [oci_core_instance.App_Instance_2.public_ip]
       }
-  
-        output "load_balancer_ip" {
+
+      output "load_balancer_ip" {
         description = "Public IPs of the load balancer. "
-        value       = [oci_load_balancer.lb1.public_ip]
+        value       = [oci_load_balancer.lb1.ip_addresses[0]]
       }

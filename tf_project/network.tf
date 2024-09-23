@@ -75,19 +75,6 @@ resource "oci_core_security_list" "securitylist1" {
     }
   }
 
-  # allow inbound remote desktop traffic
-  ingress_security_rules {
-    protocol  = "6" # tcp
-    source    = "0.0.0.0/0"
-    stateless = false
-
-    tcp_options {
-      # These values correspond to the destination port range.
-      min = 3389
-      max = 3389
-    }
-  }
-
   egress_security_rules {
     protocol    = "all"
     destination = "0.0.0.0/0"
