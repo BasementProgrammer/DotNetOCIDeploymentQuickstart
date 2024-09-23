@@ -4,33 +4,25 @@
 #
 
 # Install nginx
-sudo yum install -y epel-release
-sudo yum install -y nginx
+apt-get update
+apt install -y epel-release
+apt install -y nginx
+apt install -y unzip
+apt install -y firewalld
 
 # Create the /var/www directory if it doesn't exist
-sudo mkdir -p /var/www
-sudo mkdir -p /var/www/App
+mkdir -p /var/www
+mkdir -p /var/www/App
 
-# Create the Hello World HTML file
-echo '<!DOCTYPE html>
-<html>
-<head>
-    <title>Hello World</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-</body>
-</html>' |  sudo tee /var/www/index.html
-
-sudo systemctl restart nginx
+systemctl restart nginx
 
 # Open HTTP port 80 in the firewall
-sudo systemctl stop firewalld
-sudo firewall-offline-cmd --zone=public --add-service=http
-sudo firewall-offline-cmd --zone=public --add-service=https
-sudo firewall-offline-cmd --zone=public --add-port=5000/tcp 
+systemctl stop firewalld
+firewall-offline-cmd --zone=public --add-service=http
+firewall-offline-cmd --zone=public --add-service=https
+firewall-offline-cmd --zone=public --add-port=5000/tcp 
 # firewall-cmd --reload
-sudo systemctl start firewalld
+systemctl start firewalld
 
 #
 # Dot Net Section
@@ -38,16 +30,17 @@ sudo systemctl start firewalld
 
 # Install the latest version of .NET on the instance
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-chmod +x ./dotnet-install.sh
-./dotnet-install.sh --version latest --install-dir /.dotnet
+sudo chmod +x ./dotnet-install.sh
+sudo ./dotnet-install.sh --version latest --install-dir /.dotnet
 echo 'export DOTNET_ROOT=/.dotnet' >> ~/.bashrc
 echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc
 
 # Install the OCL-CLI
-sudo yum install -y python3-oci-cli
+# apt install -y python3-oci-cli
 # Download the application from your bucket
 # oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
-sudo unzip ./App.zip -d /var/www/App
+wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/OpvyTi26yLUHLwyDIXzO_VYYyxWzF3UAfVWCS-JXOkZRzI7yAQ0hY18aVTzoGYXD/n/idkdtvnsgvin/b/SampleDotNetInstallFiles/o/App.zip -O App.zip
+unzip ./App.zip -d /var/www/App
 
 # Create Kestral service for the asp.net application
 echo '
@@ -55,29 +48,27 @@ echo '
 Description=Example .NET Web API App running on Linux
 
 [Service]
-WorkingDirectory=/var/www/App
+WorkingDirectory=/var/www/App/
 ExecStart=/.dotnet/dotnet /var/www/App/ociTestASPNET.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
 KillSignal=SIGINT
 SyslogIdentifier=dotnet-example
-User=opc
+User=ubuntu
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_NOLOGO=true
 
 [Install]
-WantedBy=multi-user.target'  |  sudo tee /etc/systemd/system/aspnetTestApp.service
+WantedBy=multi-user.target' | tee /etc/systemd/system/aspnetTestApp.service
 
-sudo systemctl enable aspnetTestApp.service
-sudo systemctl start aspnetTestApp.service
+systemctl enable aspnetTestApp.service
+systemctl start aspnetTestApp.service
 
 # Configure nginx to serve /var/www directory
-#bash -c 'cat > /etc/nginx/conf.d/default.conf <<EOF
-
 mkdir -p /etc/nginx/sites-available
 
-#bash -c 'cat > /etc/nginx/sites-available/aspnetTestApp.conf <<EOF
+echo '
 server {
     listen       80;
     server_name  _;
@@ -85,15 +76,18 @@ server {
         proxy_pass         http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade $http_upgrade;
-        proxy_set_header   Connection $connection_upgrade;
+        proxy_set_header   Connection keep-alive;
         proxy_set_header   Host $host;
         proxy_cache_bypass $http_upgrade;
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
 }
-EOF'
+' | tee /etc/nginx/sites-available/default
 
-sudo ln -s /etc/nginx/sites-available/nginxdotnet /etc/nginx/sites-enabled/nginxdotnet
+systemctl restart nginx
 
-sudo systemctl restart nginx
+
+
+
+
