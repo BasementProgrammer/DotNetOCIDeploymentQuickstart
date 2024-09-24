@@ -1,2 +1,4 @@
-# DotNetOCIDeploymentQuickstart
-Quickstart to deploy a sample ASP.NET application to OCI fia IaC
+# .Net Deployment Quickstart for Oracle Cloud Infrastructure
+
+This quickstart will help you to create infrastructure to deploy a .NET application inside of your OCI Tennancy.
+
