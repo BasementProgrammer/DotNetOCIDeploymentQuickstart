@@ -1,19 +1,22 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = ".NET on OCI";
+    ViewData["HostName"] = System.Net.Dns.GetHostName();
+    ViewData["IPAddress"] = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName())[0].ToString();
 }
 
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
     <img src="~/images/logo.jpg" alt="Logo" style="width: 400px; " />
-    <p>Learn about <a href="https://www.oracle.com/cloud/">Oracle </a>.</p>
+    <h1 class="display-4">Welcome</h1>
 </div>
 
 <!--Create a div with a left justified bullet point list-->
 <div class="text-left">
     <ul>
-        <li></li>
-
+        <li>Learn about Cloud <a href="https://www.oracle.com/cloud/">here.</a></li>
+        <li>Signup for Oracle Cloud <a href="https://signup.oraclecloud.com/">here.</a></li>
+        <li>Oracle Resource Manager <a href="https://cloud.oracle.com/resourcemanager/overview?region=us-ashburn-1">here.</a></li>
+        <li>Oracle GitHub <a href="https://github.com/oracle">here.</a></li>
     </ul>
