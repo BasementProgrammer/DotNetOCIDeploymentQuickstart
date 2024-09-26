@@ -19,8 +19,6 @@
     visible: true  
     variables:
     - instance_display_name
-    - vcn_ocid
-    - subnet_ocid
     - shape
 
   - title: ${Messages.solutionsHub.optionalConfig()}
@@ -30,13 +28,10 @@
     - ipxe_script
     - preserve_boot_volume
     - boot_volume_size_in_gbs
-    - assign_public_ip
     - vnic_name
     - hostname_label
-    - private_ip
     - skip_source_dest_check
     - ssh_public_key
-    - user_data
     - instance_timeout
     - attachment_type
     - use_chap
@@ -95,13 +90,6 @@
       dependsOn:
         compartmentId: compartment_ocid
 
-    assign_public_ip:
-      type: boolean
-      required: false
-      title: ${Messages.solutionsHub.solutions.computeInstance.variables.assign_public_ip.title()}
-      description: ${Messages.solutionsHub.solutions.computeInstance.variables.assign_public_ip.description()}
-      default: false
-
     vnic_name:
       type: string
       required: false
@@ -116,37 +104,12 @@
       title: ${Messages.solutionsHub.solutions.computeInstance.variables.hostname_label.title()}
       description: ${Messages.solutionsHub.solutions.computeInstance.variables.hostname_label.description()}
 
-    private_ip:
-      type: string
-      required: false
-      default: ""
-      title: ${Messages.solutionsHub.solutions.computeInstance.variables.private_ip.title()}
-      description: ${Messages.solutionsHub.solutions.computeInstance.variables.private_ip.description()}
-
     skip_source_dest_check:
       type: boolean
       required: false
       title: ${Messages.solutionsHub.solutions.computeInstance.variables.skip_source_dest_check.title()}
       description: ${Messages.solutionsHub.solutions.computeInstance.variables.skip_source_dest_check.description()}
       default: false
-
-    vcn_ocid:
-      type: oci:core:vcn:id
-      dependsOn:
-        compartmentId: compartment_ocid
-      required: false
-      default: ""
-      title: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.title()}
-      description: ${Messages.solutionsHub.solutions.computeInstance.variables.vcn_ocid.description()}
-
-    subnet_ocid:
-      type: oci:core:subnet:id
-      dependsOn:
-        compartmentId: compartment_ocid
-        vcnId: vcn_ocid
-      required: false
-      title: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.title()}
-      description: ${Messages.solutionsHub.solutions.computeInstance.variables.subnet_ocid.description()}
 
     ssh_public_key:
       type: oci:core:ssh:publickey
@@ -157,13 +120,6 @@
       pattern: "((^(ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)(,((ssh-rsa AAAAB3NzaC1yc2|ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNT|ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzOD|ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1Mj|ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|ssh-dss AAAAB3NzaC1kc3)[0-9A-Za-z+\/]+[=]{0,3})( [^,]*)?)*$"
       title: ${Messages.solutionsHub.solutions.computeInstance.variables.ssh_public_key.title()}
       description: ${Messages.solutionsHub.solutions.computeInstance.variables.ssh_public_key.description()}
-
-    user_data:
-      type: text
-      required: false
-      default: ""
-      title: ${Messages.solutionsHub.solutions.computeInstance.variables.user_data.title()}
-      description: ${Messages.solutionsHub.solutions.computeInstance.variables.user_data.description()}
 
     instance_timeout:
       type: string

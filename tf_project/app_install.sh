@@ -39,7 +39,8 @@ echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc
 # apt install -y python3-oci-cli
 # Download the application from your bucket
 # oci os object get -bn install-files --name App.zip --file ./App.zip --auth instance_principal
-wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/OpvyTi26yLUHLwyDIXzO_VYYyxWzF3UAfVWCS-JXOkZRzI7yAQ0hY18aVTzoGYXD/n/idkdtvnsgvin/b/SampleDotNetInstallFiles/o/App.zip -O App.zip
+# wget https://objectstorage.us-ashburn-1.oraclecloud.com/p/OpvyTi26yLUHLwyDIXzO_VYYyxWzF3UAfVWCS-JXOkZRzI7yAQ0hY18aVTzoGYXD/n/idkdtvnsgvin/b/SampleDotNetInstallFiles/o/App.zip -O App.zip
+wget https://github.com/BasementProgrammer/DotNetOCIDeploymentQuickstart/releases/download/V1/App.zip -O App.zip
 unzip ./App.zip -d /var/www/App
 
 # Create Kestral service for the asp.net application

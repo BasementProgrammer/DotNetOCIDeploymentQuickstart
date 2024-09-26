@@ -11,14 +11,10 @@
       variable "preserve_boot_volume" {}
       variable "boot_volume_size_in_gbs" {}
       variable "shape" {}
-      variable "assign_public_ip" {}
       variable "vnic_name" {}
       variable "hostname_label" {}
-      variable "private_ip" {}
       variable "skip_source_dest_check" {}
-      //variable "subnet_ocid" {}
       variable "ssh_public_key" {}
-      variable "user_data" {}
       variable "instance_timeout" {}
       variable "block_storage_size_in_gbs" {}
       variable "attachment_type" {}

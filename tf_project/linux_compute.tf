@@ -7,10 +7,6 @@
         }
       }
 
-      #data "oci_core_subnet" "this" {
-      #  subnet_id = var.subnet_ocid
-      #}
-
       data "oci_core_images" "this" {
         #Required
         compartment_id = "${var.compartment_ocid}"
@@ -48,7 +44,6 @@
           subnet_id              = oci_core_subnet.subnet1.id
         }
 
-        #ssh_authorized_keys = var.ssh_public_key
         metadata = {
           ssh_authorized_keys = var.ssh_public_key
           user_data           = "${base64encode(file("./app_install.sh"))}"
